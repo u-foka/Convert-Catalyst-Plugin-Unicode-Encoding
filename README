@@ -24,6 +24,8 @@ OVERLOADED METHODS
         Decodes parameters into a sequence of logical characters.
 
     setup
+        Setups "$c->encoding" with encoding specified in
+        "$c->config->{encoding}".
 
 SEE ALSO
     Encode, Encode::Encoding, Catalyst::Plugin::Unicode, Catalyst.

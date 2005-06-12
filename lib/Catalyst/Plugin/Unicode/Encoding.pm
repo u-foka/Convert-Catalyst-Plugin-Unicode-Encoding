@@ -14,7 +14,7 @@ __PACKAGE__->mk_classdata('_encoding');
 sub encoding {
     my $c = shift;
 
-    if ( ref($c) ) { # instance method
+    if ( ref($c) ) { # instance
 
         if ( my $wanted = shift(@_) ) {
 
@@ -126,6 +126,8 @@ Encodes body into encoding.
 Decodes parameters into a sequence of logical characters.
 
 =item setup
+
+Setups C<< $c->encoding >> with encoding specified in C<< $c->config->{encoding} >>.
 
 =back
 
