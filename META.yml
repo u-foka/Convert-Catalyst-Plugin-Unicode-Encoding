@@ -1,0 +1,12 @@
+---
+name: Catalyst-Plugin-Unicode-Encoding
+version: 0.1
+author:
+  - 'Christian Hansen, C<ch@ngmedia.com>'
+abstract: Unicode aware Catalyst
+license: perl
+provides:
+  Catalyst::Plugin::Unicode::Encoding:
+    file: lib/Catalyst/Plugin/Unicode/Encoding.pm
+    version: 0.1
+generated_by: Module::Build version 0.2608

@@ -1,0 +1,37 @@
+NAME
+    Catalyst::Plugin::Unicode::Encoding - Unicode aware Catalyst
+
+SYNOPSIS
+        use Catalyst qw[Unicode::Encoding];
+
+        MyApp->config( encoding => 'UTF-8' ); # A valid Encode encoding
+
+DESCRIPTION
+    On request, decodes all params from encoding into a sequence of logical
+    characters. On response, encodes body into encoding.
+
+METHODS
+    encoding
+        Returns a instance of a "Encode" encoding
+
+            print $c->encoding->name
+
+OVERLOADED METHODS
+    finalize
+        Encodes body into encoding.
+
+    prepare_parameters
+        Decodes parameters into a sequence of logical characters.
+
+    setup
+
+SEE ALSO
+    Encode, Encode::Encoding, Catalyst::Plugin::Unicode, Catalyst.
+
+AUTHOR
+    Christian Hansen, "ch@ngmedia.com"
+
+LICENSE
+    This library is free software . You can redistribute it and/or modify it
+    under the same terms as perl itself.
+
