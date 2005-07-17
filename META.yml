@@ -5,8 +5,11 @@ author:
   - 'Christian Hansen, C<ch@ngmedia.com>'
 abstract: Unicode aware Catalyst
 license: perl
+requires:
+  Catalyst: 5.2
+  Encode: 2.1
 provides:
   Catalyst::Plugin::Unicode::Encoding:
     file: lib/Catalyst/Plugin/Unicode/Encoding.pm
     version: 0.1
-generated_by: Module::Build version 0.2608
+generated_by: Module::Build version 0.26

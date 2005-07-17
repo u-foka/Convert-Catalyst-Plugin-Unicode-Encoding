@@ -1,4 +1,4 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
-0.1  Xxx Xxx 00 00:00:00 2005
-        - original version.
+0.1  2005-06-17 23:29:00 2005
+        - inital CPAN release.
