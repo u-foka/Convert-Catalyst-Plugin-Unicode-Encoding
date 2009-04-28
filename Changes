@@ -1,4 +1,7 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
-0.1  2005-06-17 23:29:00 2005
+0.2  2009-04-28 11:43:00 
+        - Switch to MRO::Compat for Catalyst 5.8
+
+0.1  2005-06-17 23:29:00
         - inital CPAN release.

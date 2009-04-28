@@ -6,7 +6,8 @@ use base 'Class::Data::Inheritable';
 use Carp ();
 use Encode 2.10 ();
 
-our $VERSION = '0.1';
+use MRO::Compat;
+our $VERSION = '0.2';
 our $CHECK   = Encode::FB_CROAK | Encode::LEAVE_SRC;
 
 __PACKAGE__->mk_classdata('_encoding');
@@ -42,26 +43,26 @@ sub finalize {
     my $c = shift;
 
     unless ( $c->response->body ) {
-        return $c->NEXT::finalize;
+        return $c->next::method(@_);
     }
 
     unless ( $c->response->content_type =~ /^text|xml$|javascript$/ ) {
-        return $c->NEXT::finalize;
+        return $c->next::method(@_);
     }
 
     unless ( Encode::is_utf8( $c->response->body ) ) {
-        return $c->NEXT::finalize;
+        return $c->next::method(@_);
     }
 
     $c->response->body( $c->encoding->encode( $c->response->body, $CHECK ) );
 
-    $c->NEXT::finalize;
+    $c->next::method(@_);
 }
 
 sub prepare_parameters {
     my $c = shift;
 
-    $c->NEXT::prepare_parameters;
+    $c->next::method(@_);
 
     for my $value ( values %{ $c->request->{parameters} } ) {
 
@@ -78,7 +79,7 @@ sub setup {
 
     $self->encoding( $self->config->{encoding} || 'UTF-8' );
 
-    return $self->NEXT::setup(@_);
+    $self->next::method(@_);
 }
 
 1;
