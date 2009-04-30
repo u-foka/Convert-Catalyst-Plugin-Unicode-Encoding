@@ -9,6 +9,7 @@ Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
         - Handles the latin-1 (i.e. e-accute) case of encoding that everyone
           else forgets
         - Copy live tests from Catalyst::Plugin::Encoding
+        - Fix bug with setting encoding in config (test from abraxxa)
 
 0.2  2009-04-28 11:43:00 
         - Switch to MRO::Compat for Catalyst 5.8

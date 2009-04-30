@@ -84,3 +84,4 @@ my $hoge_utf8 = "ほげ";
         'content string matches from latin1'
     );
 }
+

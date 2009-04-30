@@ -15,6 +15,7 @@ __PACKAGE__->mk_classdata('_encoding');
 sub encoding {
     my $c = shift;
     my $encoding;
+
     if ( scalar @_ ) {
         # Let it be set to undef
         if (my $wanted = shift)  {
@@ -91,7 +92,7 @@ sub setup {
     my $conf = $self->config;
 
     # Allow an explict undef encoding to disable default of utf-8
-    my $enc = exists $conf->{encoding} ? $conf->{encoding} : 'UTF-8';
+    my $enc = exists $conf->{encoding} ? delete $conf->{encoding} : 'UTF-8';
     $self->encoding( $enc );
 
     return $self->next::method(@_);
