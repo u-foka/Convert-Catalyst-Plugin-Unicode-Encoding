@@ -1,5 +1,15 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
+        - Switch to Module::Install
+        - Require Catalyst 5.8
+        - Allow setting undef encoding (per request) to disable default of
+          UTF-8
+        - Don't overwrite encoding set in content types: 
+            "text/html; charset=utf-8"
+        - Handles the latin-1 (i.e. e-accute) case of encoding that everyone
+          else forgets
+        - Copy live tests from Catalyst::Plugin::Encoding
+
 0.2  2009-04-28 11:43:00 
         - Switch to MRO::Compat for Catalyst 5.8
 

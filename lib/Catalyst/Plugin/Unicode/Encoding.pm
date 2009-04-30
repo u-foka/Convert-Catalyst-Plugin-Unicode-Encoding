@@ -4,7 +4,7 @@ use strict;
 use base 'Class::Data::Inheritable';
 
 use Carp ();
-use Encode 2.10 ();
+use Encode 2.21 ();
 
 use MRO::Compat;
 our $VERSION = '0.2';
@@ -14,44 +14,52 @@ __PACKAGE__->mk_classdata('_encoding');
 
 sub encoding {
     my $c = shift;
-
-    if ( ref($c) ) { # instance
-
-        if ( my $wanted = shift(@_) ) {
-
-            $c->{encoding} = Encode::find_encoding($wanted)
+    my $encoding;
+    if ( scalar @_ ) {
+        # Let it be set to undef
+        if (my $wanted = shift)  {
+            $encoding = Encode::find_encoding($wanted)
               or Carp::croak( qq/Unknown encoding '$wanted'/ );
         }
 
-        if ( $c->{encoding} ) {
-            return $c->{encoding};
-        }
+        $encoding = ref $c 
+                  ? $c->{encoding} = $encoding
+                  : $c->_encoding($encoding);
+    } else {
+      $encoding = ref $c && exists $c->{encoding} 
+                ? $c->{encoding} 
+                : $c->_encoding;
     }
 
-    if ( my $wanted = shift(@_) ) {
-
-        my $encoding = Encode::find_encoding($wanted)
-          or Carp::croak( qq/Unknown encoding '$wanted'/ );
-
-        $c->_encoding($encoding);
-    }
-
-    return $c->_encoding;
+    return $encoding;
 }
 
 sub finalize {
     my $c = shift;
 
-    unless ( $c->response->body ) {
-        return $c->next::method(@_);
-    }
+    return $c->next::method(@_)
+      unless $c->response->body;
 
-    unless ( $c->response->content_type =~ /^text|xml$|javascript$/ ) {
-        return $c->next::method(@_);
-    }
+    my $enc = $c->encoding;
 
-    unless ( Encode::is_utf8( $c->response->body ) ) {
-        return $c->next::method(@_);
+    return $c->next::method(@_) 
+      unless $enc;
+
+    my ($ct,$ct_enc) = $c->response->content_type;
+
+    # Only touch 'text-like' contents
+    return $c->next::method(@_)
+      unless $c->response->content_type =~ /^text|xml$|javascript$/;
+
+    if ($ct_enc && $ct_enc =~ /charset=(.*?)$/) {
+        if (uc($1) ne $enc->mime_name) {
+            $c->log->debug("Unicode::Encoding is set to encode in '" .
+                           $enc->mime_name .
+                           "', content type is '$1', not encoding ");
+            return $c->next::method(@_);
+        }
+    } else {
+        $c->res->content_type($c->res->content_type . "; charset=" . $enc->mime_name);
     }
 
     $c->response->body( $c->encoding->encode( $c->response->body, $CHECK ) );
@@ -64,22 +72,29 @@ sub prepare_parameters {
 
     $c->next::method(@_);
 
+    my $enc = $c->encoding;
+
     for my $value ( values %{ $c->request->{parameters} } ) {
 
+        # TODO: Hash support from the Params::Nested
         if ( ref $value && ref $value ne 'ARRAY' ) {
             next;
         }
 
-        $_ = $c->encoding->decode( $_, $CHECK ) for ( ref($value) ? @{$value} : $value );
+        $_ = $enc->decode( $_, $CHECK ) for ( ref($value) ? @{$value} : $value );
     }
 }
 
 sub setup {
     my $self = shift;
 
-    $self->encoding( $self->config->{encoding} || 'UTF-8' );
+    my $conf = $self->config;
 
-    $self->next::method(@_);
+    # Allow an explict undef encoding to disable default of utf-8
+    my $enc = exists $conf->{encoding} ? $conf->{encoding} : 'UTF-8';
+    $self->encoding( $enc );
+
+    return $self->next::method(@_);
 }
 
 1;
