@@ -1,4 +1,4 @@
-use inc::Module::Install 0.81;
+use inc::Module::Install 0.87;
 
 all_from 'lib/Catalyst/Plugin/Unicode/Encoding.pm';
 
