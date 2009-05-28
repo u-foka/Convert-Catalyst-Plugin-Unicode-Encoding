@@ -1,3 +1,5 @@
+^Catalyst-Plugin-Unicode-Encoding
+
 # Avoid version control files.
 \bRCS\b
 \bCVS\b

@@ -1,5 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
+0.3  2009-05-28 19:01:15
         - Switch to Module::Install
         - Require Catalyst 5.8
         - Allow setting undef encoding (per request) to disable default of
