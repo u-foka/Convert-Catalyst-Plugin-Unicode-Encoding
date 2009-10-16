@@ -38,15 +38,17 @@ sub encoding {
 sub finalize {
     my $c = shift;
 
+    my $body = $c->response->body;
+
     return $c->next::method(@_)
-      unless $c->response->body;
+      unless defined($body);
 
     my $enc = $c->encoding;
 
     return $c->next::method(@_) 
       unless $enc;
 
-    my ($ct,$ct_enc) = $c->response->content_type;
+    my ($ct, $ct_enc) = $c->response->content_type;
 
     # Only touch 'text-like' contents
     return $c->next::method(@_)
@@ -63,7 +65,9 @@ sub finalize {
         $c->res->content_type($c->res->content_type . "; charset=" . $enc->mime_name);
     }
 
-    $c->response->body( $c->encoding->encode( $c->response->body, $CHECK ) );
+    # Encode expects plain scalars (IV, NV or PV) and segfaults on ref's
+    $c->response->body( $c->encoding->encode( $body, $CHECK ) )
+        if ref(\$body) eq 'SCALAR';
 
     $c->next::method(@_);
 }
