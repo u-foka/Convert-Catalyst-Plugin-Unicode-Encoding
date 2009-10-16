@@ -2,8 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 21;
-use utf8;
+use Test::More tests => 17;
 use IO::Scalar;
 
 # setup library path
@@ -25,41 +24,36 @@ is ($mech->response->header('Content-Type'), 'text/html; charset=UTF-8',
     'Content-Type with charset'
 );
 
-my $hoge_utf8 = "ほげ";
 {
     $mech->get_ok('http://localhost/unicode_no_enc', 'get unicode_no_enc');
-    
-    my $octets = Encode::encode_utf8($hoge_utf8); 
-    my $content = $mech->content;
+
+    my $exp = "\xE3\x81\xBB\xE3\x81\x92";
+    my $got = Encode::encode_utf8($mech->content);
 
     is ($mech->response->header('Content-Type'), 'text/plain',
         'Content-Type with no charset');
 
-    # This was an is_utf8 check before, but WWW::Mech does a few silly things.
-    is($content, $octets, "not utf8");
-    # Just to double check that no autopromotion is going on
-    isnt($content, $hoge_utf8, "Bytes != string");
-    utf8::decode($content);
-
-    is( $content, $hoge_utf8, 'content contains hoge');
+    is($got, $exp, 'content contains hoge');
 }
 
 {
     $mech->get_ok('http://localhost/unicode', 'get unicode');
-    
+
     is ($mech->response->header('Content-Type'), 'text/plain; charset=UTF-8',
         'Content-Type with charset');
 
-    is( $mech->content, $hoge_utf8, 'content contains hoge');
+    my $exp = "\xE3\x81\xBB\xE3\x81\x92";
+    my $got = Encode::encode_utf8($mech->content);
+
+    is($got, $exp, 'content contains hoge');
 }
 
 {
     $mech->get_ok('http://localhost/not_unicode', 'get bytes');
-    my $content = $mech->content; 
-    my $chars = "\x{1234}\x{5678}";
-    isnt($content, $chars);
-    utf8::encode($chars);
-    like $content, qr/$chars/, 'got 1234 5678';
+    my $exp = "\xE1\x88\xB4\xE5\x99\xB8";
+    my $got = Encode::encode_utf8($mech->content);
+
+    is($got, $exp, 'got 1234 5678');
 }
 
 {
@@ -74,14 +68,10 @@ my $hoge_utf8 = "ほげ";
     is ($mech->response->header('Content-Type'), 'text/plain; charset=UTF-8',
         'Content-Type with charset');
 
-    # Encode the utf8 string into bytes
-    my $bytes = Encode::encode_utf8($mech->content);
 
-    is ($bytes, "LATIN SMALL LETTER E WITH ACUTE: \x{C3}\x{A9}", 
-        'content bytes are utf8'
-    );
-    is ($mech->content, "LATIN SMALL LETTER E WITH ACUTE: \x{E9}", 
-        'content string matches from latin1'
-    );
+    my $exp = "LATIN SMALL LETTER E WITH ACUTE: \xC3\xA9";
+    my $got = Encode::encode_utf8($mech->content);
+
+    is ($got, $exp, 'content octets are UTF-8');
 }
 
