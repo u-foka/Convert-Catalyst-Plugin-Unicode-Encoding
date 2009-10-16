@@ -72,7 +72,7 @@ sub finalize {
     $c->next::method(@_);
 }
 
-sub prepare_parameters {
+sub prepare_uploads {
     my $c = shift;
 
     $c->next::method(@_);
