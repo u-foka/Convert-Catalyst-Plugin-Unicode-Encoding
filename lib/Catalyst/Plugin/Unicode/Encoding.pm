@@ -3,12 +3,14 @@ package Catalyst::Plugin::Unicode::Encoding;
 use strict;
 use base 'Class::Data::Inheritable';
 
+use utf8;
 use Carp ();
 use Encode 2.21 ();
+use Encode::Guess;
 
 use MRO::Compat;
 our $VERSION = '0.3';
-our $CHECK   = Encode::FB_CROAK | Encode::LEAVE_SRC;
+our $CHECK   = Encode::FB_DEFAULT;
 
 __PACKAGE__->mk_classdata('_encoding');
 
@@ -79,14 +81,70 @@ sub prepare_parameters {
 
     my $enc = $c->encoding;
 
-    for my $value ( values %{ $c->request->{parameters} } ) {
+    my @possible_incoming_charsets;
+
+    if (my $charsets = $c->config->{ incoming_charset }) {
+        @possible_incoming_charsets
+             = map { split /\s+/, $_ }
+               ref $charsets ? @{ $charsets } : ( $charsets );
+    }
+
+    # If we have a list of possible charsets to search through, use them.  If
+    # not, assume all input has to be valid based on $c->encoding.  Bad chars
+    # will be replaced with empty chars. (see our $CHECK above.)
+    my $found_encoding = @possible_incoming_charsets ? undef : $enc;
+
+    PASSED_PARAMETER:
+    foreach my $parameter ( keys %{ $c->request->{ parameters } } ) {
+        my $value = $c->request->param( $parameter );
 
         # TODO: Hash support from the Params::Nested
         if ( ref $value && ref $value ne 'ARRAY' ) {
-            next;
+            next PASSED_PARAMETER;
         }
 
-        $_ = $enc->decode( $_, $CHECK ) for ( ref($value) ? @{$value} : $value );
+        PARAMETER_VALUE:
+        for $value ( ref($value) ? @{ $value } : $value ) {
+            # If it doesn't have a high byte character, decoding is going to
+            # work regardless of what encoding we think it might be.
+            my $has_highbyte_char = grep { $_ > 127  }
+                                     map { ord( $_ ) }
+                                   split //, $value;
+
+            if (!$has_highbyte_char) {
+                next PARAMETER_VALUE;
+            }
+
+            if ( !defined $found_encoding ) {
+                eval { $enc->decode( $value, Encode::FB_CROAK ) };
+
+                if ($@) {
+                    $c->log->info(
+                        'Params were not sent in '
+                      . $c->encoding->name . '. '
+                      . 'Attempting to guess.'
+                    );
+
+                    $found_encoding = guess_encoding(
+                        $value, @possible_incoming_charsets
+                    );
+
+                    if (!ref $found_encoding) {
+                        $found_encoding = $enc;
+
+                        $c->log->warn(
+                            'Failed finding encoding on input -- will put a '
+                          . 'substitution character on failed conversions'
+                        );
+                    }
+                }
+                else {
+                    $found_encoding = $enc;
+                }
+            }
+
+            $value = $found_encoding->decode( $value, $CHECK );
+        }
     }
 }
 
@@ -115,12 +173,45 @@ Catalyst::Plugin::Unicode::Encoding - Unicode aware Catalyst
     use Catalyst qw[Unicode::Encoding];
 
     MyApp->config( encoding => 'UTF-8' ); # A valid Encode encoding
+    MyApp->config( incoming_charset => [qw( big5 iso8859-1 )]);
 
 
 =head1 DESCRIPTION
 
 On request, decodes all params from encoding into a sequence of
 logical characters. On response, encodes body into encoding.
+
+=head1 CONFIGURATION
+
+=over 2
+
+=item incoming_charset
+
+You may set your Catalyst application with one or more incoming_charset values
+in your configuration. This module will attempt to decode incoming request
+parameters to these type(s).
+
+    MyApp->config( incoming_charset => [qw( big5 )] );
+
+This is especially prudent when your website has a form submitted to from
+another website that may have different encoding than yours.  Because browsers
+don't generally send their charset type with their request, it's up to you to
+have some idea what charsets they might be in.
+
+Be careful using any iso8859 charset, as it's likely to match just about
+everything as a series of 8 bit characters.
+
+If a match isn't successfully found, this module will silently replace invalid
+characters in accordance with C<Encode>'s FB_DEFAULT method.
+
+If this isn't what you want or expect, set C<$Catalyst::Plugin::Unicode::Encoding::CHECK>
+to the relevant FB_ or other relevant constant from the C<Encode> module.
+
+=item encoding
+
+Set your Catalyst application's default encoding.
+
+=back
 
 =head1 METHODS
 
