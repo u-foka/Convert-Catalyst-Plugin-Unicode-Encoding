@@ -149,15 +149,16 @@ Returns a instance of a C<Encode> encoding
 
 =head1 OVERLOADED METHODS
 
-=over 4
+=over
 
 =item finalize
 
 Encodes body into encoding.
 
-=item prepare_parameters
+=item prepare_uploads
 
-Decodes parameters into a sequence of logical characters.
+Decodes parameters, query_parameters, body_parameters and filenames
+in file uploads into a sequence of logical characters.
 
 =item setup
 
@@ -169,9 +170,13 @@ Setups C<< $c->encoding >> with encoding specified in C<< $c->config->{encoding}
 
 L<Encode>, L<Encode::Encoding>, L<Catalyst::Plugin::Unicode>, L<Catalyst>.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Christian Hansen, C<ch@ngmedia.com>
+
+Masahiro Chiba
+
+Tomas Doran, C<bobtfish@bobtfish.net>
 
 =head1 LICENSE
 
