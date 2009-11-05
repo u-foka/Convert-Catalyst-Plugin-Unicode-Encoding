@@ -72,6 +72,7 @@ sub finalize {
     $c->next::method(@_);
 }
 
+# Note we have to hook here as uploads also add to the request parameters
 sub prepare_uploads {
     my $c = shift;
 
@@ -79,14 +80,19 @@ sub prepare_uploads {
 
     my $enc = $c->encoding;
 
-    for my $value ( values %{ $c->request->{parameters} } ) {
+    for my $key (qw/ parameters query_parameters body_parameters /) {
+        for my $value ( values %{ $c->request->{$key} } ) {
 
-        # TODO: Hash support from the Params::Nested
-        if ( ref $value && ref $value ne 'ARRAY' ) {
-            next;
+            # TODO: Hash support from the Params::Nested
+            if ( ref $value && ref $value ne 'ARRAY' ) {
+                next;
+            }
+
+            $_ = $enc->decode( $_, $CHECK ) for ( ref($value) ? @{$value} : $value );
         }
-
-        $_ = $enc->decode( $_, $CHECK ) for ( ref($value) ? @{$value} : $value );
+    }
+    for my $value ( values %{ $c->request->uploads } ) {
+        $_->{filename} = $enc->decode( $_->{filename}, $CHECK ) for ( ref($value) eq 'ARRAY' ? @{$value} : $value );
     }
 }
 

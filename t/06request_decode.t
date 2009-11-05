@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 3 * 3;
+use Test::More tests => 5 * 3;
 use utf8;
 
 # setup library path
@@ -38,6 +38,12 @@ sub check_parameter {
     my $foo = $c->req->param('foo');
     ok utf8::is_utf8($foo);
     is $foo => $decode_str;
+
+    my $other_foo = $c->req->method eq 'POST'
+        ? $c->req->upload('foo')
+            ? $c->req->upload('foo')->filename
+            : $c->req->body_parameters->{foo}
+        : $c->req->query_parameters->{foo};
+    ok utf8::is_utf8($other_foo);
+    is $other_foo => $decode_str;
 }
-
-
