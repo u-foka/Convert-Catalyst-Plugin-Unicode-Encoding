@@ -20,8 +20,9 @@ OVERLOADED METHODS
     finalize
         Encodes body into encoding.
 
-    prepare_parameters
-        Decodes parameters into a sequence of logical characters.
+    prepare_uploads
+        Decodes parameters, query_parameters, body_parameters and filenames
+        in file uploads into a sequence of logical characters.
 
     setup
         Setups "$c->encoding" with encoding specified in
@@ -30,8 +31,12 @@ OVERLOADED METHODS
 SEE ALSO
     Encode, Encode::Encoding, Catalyst::Plugin::Unicode, Catalyst.
 
-AUTHOR
+AUTHORS
     Christian Hansen, "ch@ngmedia.com"
+
+    Masahiro Chiba
+
+    Tomas Doran, "bobtfish@bobtfish.net"
 
 LICENSE
     This library is free software . You can redistribute it and/or modify it
