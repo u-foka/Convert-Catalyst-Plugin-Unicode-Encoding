@@ -87,12 +87,19 @@ sub prepare_uploads {
             if ( ref $value && ref $value ne 'ARRAY' ) {
                 next;
             }
-
-            $_ = $enc->decode( $_, $CHECK ) for ( ref($value) ? @{$value} : $value );
+            for ( ref($value) ? @{$value} : $value ) {
+                # N.B. Check if already a character string and if so do not try to double decode.
+                #      http://www.mail-archive.com/catalyst@lists.scsys.co.uk/msg02350.html
+                #      this avoids exception if we have already decoded content, and is _not_ the
+                #      same as not encoding on output which is bad news (as it does the wrong thing
+                #      for latin1 chars for example)..
+                $_ = Encode::is_utf8( $_ ) ? $_ : $enc->decode( $_, $CHECK );
+            }
         }
     }
     for my $value ( values %{ $c->request->uploads } ) {
-        $_->{filename} = $enc->decode( $_->{filename}, $CHECK ) for ( ref($value) eq 'ARRAY' ? @{$value} : $value );
+        $_->{filename} = $enc->decode( $_->{filename}, $CHECK )
+            for ( ref($value) eq 'ARRAY' ? @{$value} : $value );
     }
 }
 
