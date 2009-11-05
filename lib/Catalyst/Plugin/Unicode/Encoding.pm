@@ -72,21 +72,34 @@ sub finalize {
     $c->next::method(@_);
 }
 
-sub prepare_parameters {
+# Note we have to hook here as uploads also add to the request parameters
+sub prepare_uploads {
     my $c = shift;
 
     $c->next::method(@_);
 
     my $enc = $c->encoding;
 
-    for my $value ( values %{ $c->request->{parameters} } ) {
+    for my $key (qw/ parameters query_parameters body_parameters /) {
+        for my $value ( values %{ $c->request->{$key} } ) {
 
-        # TODO: Hash support from the Params::Nested
-        if ( ref $value && ref $value ne 'ARRAY' ) {
-            next;
+            # TODO: Hash support from the Params::Nested
+            if ( ref $value && ref $value ne 'ARRAY' ) {
+                next;
+            }
+            for ( ref($value) ? @{$value} : $value ) {
+                # N.B. Check if already a character string and if so do not try to double decode.
+                #      http://www.mail-archive.com/catalyst@lists.scsys.co.uk/msg02350.html
+                #      this avoids exception if we have already decoded content, and is _not_ the
+                #      same as not encoding on output which is bad news (as it does the wrong thing
+                #      for latin1 chars for example)..
+                $_ = Encode::is_utf8( $_ ) ? $_ : $enc->decode( $_, $CHECK );
+            }
         }
-
-        $_ = $enc->decode( $_, $CHECK ) for ( ref($value) ? @{$value} : $value );
+    }
+    for my $value ( values %{ $c->request->uploads } ) {
+        $_->{filename} = $enc->decode( $_->{filename}, $CHECK )
+            for ( ref($value) eq 'ARRAY' ? @{$value} : $value );
     }
 }
 
@@ -136,15 +149,16 @@ Returns a instance of a C<Encode> encoding
 
 =head1 OVERLOADED METHODS
 
-=over 4
+=over
 
 =item finalize
 
 Encodes body into encoding.
 
-=item prepare_parameters
+=item prepare_uploads
 
-Decodes parameters into a sequence of logical characters.
+Decodes parameters, query_parameters, body_parameters and filenames
+in file uploads into a sequence of logical characters.
 
 =item setup
 
@@ -156,9 +170,13 @@ Setups C<< $c->encoding >> with encoding specified in C<< $c->config->{encoding}
 
 L<Encode>, L<Encode::Encoding>, L<Catalyst::Plugin::Unicode>, L<Catalyst>.
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 Christian Hansen, C<ch@ngmedia.com>
+
+Masahiro Chiba
+
+Tomas Doran, C<bobtfish@bobtfish.net>
 
 =head1 LICENSE
 
