@@ -1,5 +1,11 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
+0.5 2009-11-05 02:03:44
+        - Decode $c->req->query_parameters, $c->req->body_parameters
+        - Decode file upload filenames in parameters
+        - Decode filenames in file upload objects
+        - Don't die if content already in character octets is encountered
+
 0.4  2009-10-16 17:07:07
         - Fix bug causing Encode to segfault in some cases
         - Fix broken tests
