@@ -6,6 +6,7 @@ requires 'Encode' => '2.21';
 requires 'Catalyst' => '5.80';
 
 test_requires 'Test::WWW::Mechanize::Catalyst' => 0.51;
+test_requires 'IO::Scalar';
 
 resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Plugin-Unicode-Encoding/';
 

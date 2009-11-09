@@ -1,5 +1,7 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
+        - Fix missing dependency for the tests.
+
 0.5 2009-11-05 02:03:44
         - Decode $c->req->query_parameters, $c->req->body_parameters
         - Decode file upload filenames in parameters
