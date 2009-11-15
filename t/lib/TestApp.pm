@@ -2,7 +2,8 @@ package TestApp;
 use strict;
 use warnings;
 use base qw/Catalyst/;
-use Catalyst qw/Unicode::Encoding/;
+
+use Catalyst;
 
 __PACKAGE__->config(
   encoding => $ENV{TESTAPP_ENCODING}
@@ -10,6 +11,8 @@ __PACKAGE__->config(
 
 __PACKAGE__->config('name' => 'TestApp');
 
-__PACKAGE__->setup;
+my @plugins = qw/Unicode::Encoding/;
+push @plugins, 'Params::Nested' if $ENV{TESTAPP_PARAMS_NESTED};
+__PACKAGE__->setup(@plugins);
 
 1;

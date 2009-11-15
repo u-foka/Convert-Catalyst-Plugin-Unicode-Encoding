@@ -7,6 +7,8 @@ use Carp ();
 use Encode 2.21 ();
 
 use MRO::Compat;
+use Data::Visitor::Callback;
+
 our $VERSION = '0.5';
 our $CHECK   = Encode::FB_CROAK | Encode::LEAVE_SRC;
 
@@ -80,26 +82,29 @@ sub prepare_uploads {
 
     my $enc = $c->encoding;
 
+    my $visitor = Data::Visitor::Callback->new(
+        value => sub {
+            return unless defined($_);
+
+            # N.B. Check if already a character string and if so do not try to double decode.
+            #      http://www.mail-archive.com/catalyst@lists.scsys.co.uk/msg02350.html
+            #      this avoids exception if we have already decoded content, and is _not_ the
+            #      same as not encoding on output which is bad news (as it does the wrong thing
+            #      for latin1 chars for example)..
+            $_ = Encode::is_utf8( $_ ) ? $_ : $enc->decode( $_, $CHECK );
+        },
+        'Catalyst::Request::Upload' => sub {
+            $_->{filename} = $enc->decode( $_->{filename}, $CHECK )
+        },
+    );
+
     for my $key (qw/ parameters query_parameters body_parameters /) {
         for my $value ( values %{ $c->request->{$key} } ) {
-
-            # TODO: Hash support from the Params::Nested
-            if ( ref $value && ref $value ne 'ARRAY' ) {
-                next;
-            }
-            for ( ref($value) ? @{$value} : $value ) {
-                # N.B. Check if already a character string and if so do not try to double decode.
-                #      http://www.mail-archive.com/catalyst@lists.scsys.co.uk/msg02350.html
-                #      this avoids exception if we have already decoded content, and is _not_ the
-                #      same as not encoding on output which is bad news (as it does the wrong thing
-                #      for latin1 chars for example)..
-                $_ = Encode::is_utf8( $_ ) ? $_ : $enc->decode( $_, $CHECK );
-            }
+            $visitor->visit($value);
         }
     }
     for my $value ( values %{ $c->request->uploads } ) {
-        $_->{filename} = $enc->decode( $_->{filename}, $CHECK )
-            for ( ref($value) eq 'ARRAY' ? @{$value} : $value );
+        $visitor->visit($value);
     }
 }
 
