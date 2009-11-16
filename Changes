@@ -1,6 +1,8 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
+0.6 2009-11-16 20:45:43
         - Fix missing dependency for the tests.
+        - Avoid LWP releases which break the tests by messing up unicode.
 
 0.5 2009-11-05 02:03:44
         - Decode $c->req->query_parameters, $c->req->body_parameters
