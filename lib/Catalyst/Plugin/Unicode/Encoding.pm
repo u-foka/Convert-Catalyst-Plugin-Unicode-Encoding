@@ -7,7 +7,7 @@ use Carp ();
 use Encode 2.21 ();
 
 use MRO::Compat;
-use Data::Visitor::Callback;
+use Data::Rmap;
 
 our $VERSION = '0.5';
 our $CHECK   = Encode::FB_CROAK | Encode::LEAVE_SRC;
@@ -82,8 +82,10 @@ sub prepare_uploads {
 
     my $enc = $c->encoding;
 
-    my $visitor = Data::Visitor::Callback->new(
-        value => sub {
+    my $map_decoder = sub {
+        my $value = shift;
+
+        rmap {
             return unless defined($_);
 
             # N.B. Check if already a character string and if so do not try to double decode.
@@ -92,19 +94,16 @@ sub prepare_uploads {
             #      same as not encoding on output which is bad news (as it does the wrong thing
             #      for latin1 chars for example)..
             $_ = Encode::is_utf8( $_ ) ? $_ : $enc->decode( $_, $CHECK );
-        },
-        'Catalyst::Request::Upload' => sub {
-            $_->{filename} = $enc->decode( $_->{filename}, $CHECK )
-        },
-    );
+        } $value;
+    };
 
     for my $key (qw/ parameters query_parameters body_parameters /) {
         for my $value ( values %{ $c->request->{$key} } ) {
-            $visitor->visit($value);
+            $map_decoder->(\$value);
         }
     }
     for my $value ( values %{ $c->request->uploads } ) {
-        $visitor->visit($value);
+        $map_decoder->(\$value);
     }
 }
 
