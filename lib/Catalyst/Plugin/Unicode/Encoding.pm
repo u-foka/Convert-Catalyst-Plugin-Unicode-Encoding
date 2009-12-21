@@ -7,7 +7,7 @@ use Carp ();
 use Encode 2.21 ();
 
 use MRO::Compat;
-our $VERSION = '0.6';
+our $VERSION = '0.7';
 our $CHECK   = Encode::FB_CROAK | Encode::LEAVE_SRC;
 
 __PACKAGE__->mk_classdata('_encoding');
