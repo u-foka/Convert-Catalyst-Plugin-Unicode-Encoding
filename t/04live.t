@@ -2,15 +2,21 @@
 
 use strict;
 use warnings;
-use Test::More tests => 17;
+use Test::More;
 use IO::Scalar;
 
 # setup library path
 use FindBin qw($Bin);
 use lib "$Bin/lib";
 
+BEGIN {
+if ( !eval { require Test::WWW::Mechanize::Catalyst } ) {
+    plan skip_all => 'Need Test::WWW::Mechanize::Catalyst for this test';
+}
+}
+
 # make sure testapp works
-BEGIN { use_ok('TestApp') or BAIL_OUT($@) };
+use_ok('TestApp') or BAIL_OUT($@);
 
 our $TEST_FILE = IO::Scalar->new(\"this is a test");
 sub IO::Scalar::FILENO { -1 }; # needed?
@@ -74,4 +80,6 @@ is ($mech->response->header('Content-Type'), 'text/html; charset=UTF-8',
 
     is ($got, $exp, 'content octets are UTF-8');
 }
+
+done_testing;
 
