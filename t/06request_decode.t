@@ -12,7 +12,7 @@ use lib "$Bin/lib";
 use Catalyst::Test 'TestApp';
 use Encode;
 use HTTP::Request::Common;
-use URI::Escape;
+use URI::Escape qw/uri_escape_utf8/;
 
 my $encode_str = "\x{e3}\x{81}\x{82}"; # e38182 is japanese 'あ'
 my $decode_str = Encode::decode('utf-8' => $encode_str);
