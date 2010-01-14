@@ -141,7 +141,7 @@ logical characters. On response, encodes body into encoding.
 
 =item encoding
 
-Returns a instance of a C<Encode> encoding
+Returns an instance of an C<Encode> encoding
 
     print $c->encoding->name
 
