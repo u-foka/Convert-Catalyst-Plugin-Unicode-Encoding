@@ -219,7 +219,7 @@ Set your Catalyst application's default encoding.
 
 =item encoding
 
-Returns a instance of a C<Encode> encoding
+Returns an instance of an C<Encode> encoding
 
     print $c->encoding->name
 
