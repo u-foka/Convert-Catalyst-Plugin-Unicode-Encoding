@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 5 * 3;
+use Test::More tests => 6 * 3;
 use utf8;
 
 # setup library path
@@ -30,6 +30,8 @@ check_parameter(POST '/',
     ],
 );
 
+check_argument(GET "/$escape_str");
+
 
 sub check_parameter {
     my ( undef, $c ) = ctx_request(shift);
@@ -46,4 +48,13 @@ sub check_parameter {
         : $c->req->query_parameters->{foo};
     ok utf8::is_utf8($other_foo);
     is $other_foo => $decode_str;
+}
+
+sub check_argument {
+    my ( undef, $c ) = ctx_request(shift);
+    is $c->res->output => '<h1>It works</h1>';
+
+    my $foo = $c->req->args->[0];
+    ok utf8::is_utf8($foo);
+    is $foo => $decode_str;
 }
