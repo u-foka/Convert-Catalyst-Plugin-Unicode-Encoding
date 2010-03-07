@@ -1,5 +1,7 @@
 ^Catalyst-Plugin-Unicode-Encoding
 
+^\.shipit
+
 # Avoid version control files.
 \bRCS\b
 \bCVS\b

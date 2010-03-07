@@ -1,0 +1,4 @@
+steps = FindVersion, ChangeVersion, CheckChangeLog, DistTest, Commit, Tag, MakeDist
+
+svn.tagpattern =  http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Plugin-Unicode-Encoding/tags/%v
+CheckChangeLog.files = Changes
