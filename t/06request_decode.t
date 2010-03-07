@@ -58,3 +58,4 @@ sub check_argument {
     ok utf8::is_utf8($foo);
     is $foo => $decode_str;
 }
+

@@ -103,6 +103,20 @@ sub prepare_uploads {
     }
 }
 
+sub prepare_action {
+    my $c = shift;
+
+    my $ret = $c->next::method(@_);
+
+    my $enc = $c->encoding;
+
+    foreach (@{$c->req->arguments}) {
+        $_ = Encode::is_utf8( $_ ) ? $_ : $enc->decode( $_, $CHECK );
+    }
+
+    return $ret;
+}
+
 sub setup {
     my $self = shift;
 
@@ -159,6 +173,10 @@ Encodes body into encoding.
 
 Decodes parameters, query_parameters, body_parameters and filenames
 in file uploads into a sequence of logical characters.
+
+=item prepare_action
+
+Decodes request arguments (i.e. C<< $c->request->arguments >>).
 
 =item setup
 

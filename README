@@ -12,7 +12,7 @@ DESCRIPTION
 
 METHODS
     encoding
-        Returns a instance of a "Encode" encoding
+        Returns an instance of an "Encode" encoding
 
             print $c->encoding->name
 

@@ -1,5 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
+        - Correctly decode UTF-8 URI Encoded (as per RFC3986) into
+          $c->request->arguments
+        - Test for this (u-foka)
+
 0.8 2010-01-11 13:36:16
         - Don't fail tests if we have an old version of URI::Escape
           installed.
