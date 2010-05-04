@@ -7,7 +7,7 @@ use Carp ();
 use Encode 2.21 ();
 
 use MRO::Compat;
-our $VERSION = '0.9';
+our $VERSION = '0.10';
 our $CHECK   = Encode::FB_CROAK | Encode::LEAVE_SRC;
 
 __PACKAGE__->mk_classdata('_encoding');
@@ -110,7 +110,7 @@ sub prepare_action {
 
     my $enc = $c->encoding;
 
-    foreach (@{$c->req->arguments}) {
+    foreach (@{$c->req->arguments}, @{$c->req->captures}) {
         $_ = Encode::is_utf8( $_ ) ? $_ : $enc->decode( $_, $CHECK );
     }
 

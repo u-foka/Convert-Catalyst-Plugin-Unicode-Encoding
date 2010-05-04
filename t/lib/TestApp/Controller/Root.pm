@@ -51,4 +51,11 @@ sub file :Local {
     $c->response->body($main::TEST_FILE); # filehandle from test file
 }
 
+sub capture : Chained('/') CaptureArgs(1) {}
+
+sub decode_capture : Chained('capture') PathPart('') Args(0) {
+    my ( $self, $c, $cap_arg ) = @_;
+    $c->forward('main');
+}
+
 1;
