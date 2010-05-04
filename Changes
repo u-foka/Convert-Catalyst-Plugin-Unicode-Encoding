@@ -1,6 +1,9 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
-0.10
+1.0 2010-05-04 21:46:00
+    - Fix version number to be higher.
+
+0.10 2010-05-04 21:30:00
 	- Correctly decode UTF-8 URI Encoded (as per RFC3986) into
           $c->request->captures (wreis)
 
