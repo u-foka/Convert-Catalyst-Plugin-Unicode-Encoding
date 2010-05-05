@@ -176,7 +176,8 @@ in file uploads into a sequence of logical characters.
 
 =item prepare_action
 
-Decodes request arguments (i.e. C<< $c->request->arguments >>).
+Decodes request arguments (i.e. C<< $c->request->arguments >>) and
+captures (i.e. C<< $c->request->captures >>).
 
 =item setup
 
