@@ -1,5 +1,6 @@
 use inc::Module::Install 0.91;
 use Module::Install::AuthorRequires;
+use Module::Install::AuthorTests;
 
 all_from 'lib/Catalyst/Plugin/Unicode/Encoding.pm';
 
@@ -12,12 +13,13 @@ author_requires 'Test::WWW::Mechanize::Catalyst' => 0.51;
 test_requires 'Test::More' => '0.88';
 test_requires 'IO::Scalar';
 
+author_tests 't/author';
+
 resources repository => 'http://dev.catalyst.perl.org/repos/Catalyst/Catalyst-Plugin-Unicode-Encoding/';
 
 if ($Module::Install::AUTHOR) {
     system("pod2text lib/Catalyst/Plugin/Unicode/Encoding.pm > README") and die;
 }
 
-auto_install;
 WriteAll;
 
