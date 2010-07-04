@@ -35,7 +35,7 @@ sub encoding {
     return $encoding;
 }
 
-sub finalize {
+sub finalize_headers {
     my $c = shift;
 
     my $body = $c->response->body;
@@ -165,7 +165,7 @@ Returns an instance of an C<Encode> encoding
 
 =over
 
-=item finalize
+=item finalize_headers
 
 Encodes body into encoding.
 
