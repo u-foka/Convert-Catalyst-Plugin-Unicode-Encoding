@@ -17,7 +17,7 @@ METHODS
             print $c->encoding->name
 
 OVERLOADED METHODS
-    finalize
+    finalize_headers
         Encodes body into encoding.
 
     prepare_uploads
@@ -25,7 +25,8 @@ OVERLOADED METHODS
         in file uploads into a sequence of logical characters.
 
     prepare_action
-        Decodes request arguments (i.e. "$c->request->arguments").
+        Decodes request arguments (i.e. "$c->request->arguments") and
+        captures (i.e. "$c->request->captures").
 
     setup
         Setups "$c->encoding" with encoding specified in

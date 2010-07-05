@@ -1,5 +1,6 @@
 Revision history for Perl extension Catalyst::Plugin::Unicode::Encoding
 
+1.1 2010-07-05 17:52:00
     - Skip Mech tests unless TWMC is a high enough version. (RT#55302)
     - Move Pod tests to only run for module authors
     - Do encoding slightly later so that we can catch the output of 
